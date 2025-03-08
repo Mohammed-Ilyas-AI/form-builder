@@ -1,12 +1,18 @@
-<div class="h-screen flex items-center justify-center bg-gray-200 p-6">
-  <div class="flex w-full max-w-6xl gap-4">
-    <!-- Left Pane -->
-    <app-left-pane class="w-1/4 bg-white shadow-lg rounded-lg p-4"></app-left-pane>
+<div class="h-screen w-full bg-gray-200 p-6 flex items-center justify-center">
+  <div class="grid grid-cols-12 gap-4 w-full h-full max-w-[100vw]">
+    <!-- Left Pane (3 columns) -->
+    <div class="col-span-12 md:col-span-3 bg-white shadow-lg rounded-lg p-4">
+      <app-left-pane></app-left-pane>
+    </div>
 
-    <!-- Middle Pane -->
-    <app-middle-pane class="w-2/4 bg-white shadow-lg rounded-lg p-4"></app-middle-pane>
+    <!-- Middle Pane (6 columns) -->
+    <div class="col-span-12 md:col-span-6 p-4">
+      <app-middle-pane></app-middle-pane>
+    </div>
 
-    <!-- Right Pane -->
-    <app-right-pane class="w-1/4 bg-white shadow-lg rounded-lg p-4"></app-right-pane>
+    <!-- Right Pane (3 columns) -->
+    <div class="col-span-12 md:col-span-3 bg-white shadow-lg rounded-lg p-4">
+      <app-right-pane></app-right-pane>
+    </div>
   </div>
 </div>
