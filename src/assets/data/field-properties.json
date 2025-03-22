@@ -1,0 +1,53 @@
+[
+  {
+    "category": "General",
+    "properties": [
+      {
+        "id": "label",
+        "name": "Label",
+        "type": "text",
+        "placeholder": "Enter field label",
+        "icon": "fas fa-tag"
+      },
+      {
+        "id": "placeholder",
+        "name": "Placeholder",
+        "type": "text",
+        "placeholder": "Enter placeholder text",
+        "icon": "fas fa-edit"
+      },
+      {
+        "id": "defaultValue",
+        "name": "Default Value",
+        "type": "text",
+        "placeholder": "Enter default value",
+        "icon": "fas fa-check-circle"
+      }
+    ]
+  },
+  {
+    "category": "Validation",
+    "properties": [
+      {
+        "id": "required",
+        "name": "Required",
+        "type": "checkbox",
+        "icon": "fas fa-exclamation-circle"
+      },
+      {
+        "id": "minLength",
+        "name": "Min Length",
+        "type": "number",
+        "placeholder": "Minimum characters",
+        "icon": "fas fa-arrow-down"
+      },
+      {
+        "id": "maxLength",
+        "name": "Max Length",
+        "type": "number",
+        "placeholder": "Maximum characters",
+        "icon": "fas fa-arrow-up"
+      }
+    ]
+  }
+]

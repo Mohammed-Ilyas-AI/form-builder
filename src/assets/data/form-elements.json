@@ -1,0 +1,89 @@
+[
+  {
+    "category": "Basic Fields",
+    "fields": [
+      {
+        "id": "single-line-text",
+        "type": "text",
+        "label": "Single Line Text",
+        "placeholder": "Enter text...",
+        "icon": "fas fa-font"
+      },
+      {
+        "id": "multi-line-text",
+        "type": "textarea",
+        "label": "Multi Line Text",
+        "placeholder": "Enter detailed text...",
+        "icon": "fas fa-align-left"
+      },
+      {
+        "id": "integer",
+        "type": "number",
+        "label": "Integer",
+        "placeholder": "Enter a number...",
+        "icon": "fas fa-hashtag"
+      }
+    ]
+  },
+  {
+    "category": "Date & Time",
+    "fields": [
+      {
+        "id": "date-picker",
+        "type": "date",
+        "label": "Date Picker",
+        "placeholder": "Select a date...",
+        "icon": "fas fa-calendar-alt"
+      },
+      {
+        "id": "time-picker",
+        "type": "time",
+        "label": "Time Picker",
+        "placeholder": "Select a time...",
+        "icon": "fas fa-clock"
+      },
+      {
+        "id": "datetime-picker",
+        "type": "datetime-local",
+        "label": "Date & Time Picker",
+        "placeholder": "Select date & time...",
+        "icon": "fas fa-calendar-plus"
+      }
+    ]
+  },
+  {
+    "category": "Selection Fields",
+    "fields": [
+      {
+        "id": "single-select",
+        "type": "radio",
+        "label": "Single Select",
+        "icon": "fas fa-dot-circle"
+      },
+      {
+        "id": "multi-select",
+        "type": "checkbox",
+        "label": "Multi Select",
+        "icon": "fas fa-check-square"
+      },
+      {
+        "id": "dropdown",
+        "type": "select",
+        "label": "Dropdown",
+        "options": ["Option 1", "Option 2"],
+        "icon": "fas fa-caret-down"
+      }
+    ]
+  },
+  {
+    "category": "Media",
+    "fields": [
+      {
+        "id": "file-upload",
+        "type": "file",
+        "label": "File Upload",
+        "icon": "fas fa-upload"
+      }
+    ]
+  }
+]

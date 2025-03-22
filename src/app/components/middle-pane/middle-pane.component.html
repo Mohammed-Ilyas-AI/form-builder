@@ -1,1 +1,40 @@
-<p>middle-pane works!</p>
+<div class="p-4 h-full flex flex-col middle-pane">
+  <!-- ✅ Ensure Header & Description Show Properly -->
+  <div class="sticky top-0 z-10 bg-white shadow-md p-2 rounded-md">
+    <div class="flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <input *ngIf="isEditingTitle" [(ngModel)]="selectedFieldGroup.name"
+               class="border p-2 text-xl font-bold w-full rounded">
+        <h2 *ngIf="!isEditingTitle" class="text-xl font-bold">{{ selectedFieldGroup?.name || 'No Field Group Selected' }}</h2>
+
+        <button (click)="enableTitleEdit()" class="text-blue-500">
+          <i class="fas fa-edit"></i>
+        </button>
+      </div>
+
+      <div class="flex gap-3">
+        <button (click)="copyFieldGroup()" class="text-gray-500 hover:text-gray-700">
+          <i class="fas fa-copy"></i>
+        </button>
+        <button (click)="deleteFieldGroup()" class="text-red-500 hover:text-red-700">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- ✅ Ensure Description is Displayed -->
+    <div class="mt-3">
+      <input *ngIf="isEditingDescription" [(ngModel)]="selectedFieldGroup.description"
+             class="border p-2 w-full rounded" placeholder="Enter form description...">
+      <p *ngIf="!isEditingDescription" (click)="enableDescriptionEdit()"
+         class="border p-2 w-full text-gray-500 cursor-pointer">
+        {{ selectedFieldGroup?.description || '[ Add description ... ]' }}
+      </p>
+    </div>
+  </div>
+
+  <!-- ✅ Scrollable Form Builder -->
+  <div class="flex-col h-auto overflow-y-auto scrollbar-hidden mt-4 p-2 bg-white rounded-md shadow-md">
+    <app-form-renderer></app-form-renderer>
+  </div>
+</div>

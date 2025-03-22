@@ -1,1 +1,18 @@
-<p>left-pane works!</p>
+<div class="p-4 bg-white rounded-md shadow-md flex flex-col">
+  <div class="flex justify-between items-center mb-3">
+    <h3 class="text-lg mb-2 font-semibold">Field Groups</h3>
+    <button class="text-blue-500 font-medium" (click)="createFieldGroup()">➕ Create</button>
+  </div>
+
+  <div class="flex-1 overflow-y-auto scrollbar-hidden mt-2 scrollable-list">
+    <ul cdkDropList (cdkDropListDropped)="reorderGroups($event)">
+      <li *ngFor="let group of fieldGroups; let i = index"
+          cdkDrag
+          (click)="selectFieldGroup(group)"
+          class="flex items-center gap-4 p-2 cursor-pointer bg-white border border-gray-300 rounded-md mb-2 hover:bg-gray-100" >
+          <span class="text-gray-400">☰</span>
+        {{ group.name }}
+      </li>
+    </ul>
+  </div>
+</div>

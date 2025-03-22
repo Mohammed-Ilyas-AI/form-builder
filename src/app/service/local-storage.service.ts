@@ -5,64 +5,52 @@ import { Injectable } from '@angular/core';
 })
 export class LocalStorageService {
   private fieldGroups: any[] = [];
-
   private formElements: any[] = [];
-
   private fieldProperties: any[] = [];
-
   private selectedFieldGroup: any = null;
 
   constructor() {
-    this.loadDataFromJSON();
+    this.loadDefaults();
   }
 
-  /** ======== Load Data from JSON Files ======== **/
+  /** ======== Load Default Data ======== **/
+  private async loadDefaults() {
+    try {
+      // Load form elements from JSON
+      const formElementsResponse = await fetch('/assets/data/form-elements.json');
+      if (!formElementsResponse.ok) throw new Error(`Failed to load form-elements.json`);
+      this.formElements = await formElementsResponse.json();
 
-  private async loadDataFromJSON() {
-    // Load form elements from a JSON file (or API if needed)
-    const formElementsJSON = await fetch(
-      'assets/data/form-elements.json'
-    ).then((res) => res.json());
-    this.formElements = formElementsJSON;
+      // Load field properties from JSON
+      const fieldPropertiesResponse = await fetch('/assets/data/field-properties.json');
+      if (!fieldPropertiesResponse.ok) throw new Error(`Failed to load field-properties.json`);
+      this.fieldProperties = await fieldPropertiesResponse.json();
 
-    // Load field properties from a JSON file
-    const fieldPropertiesJSON = await fetch(
-      '/assets/data/field-properties.json'
-    ).then((res) => res.json());
-    this.fieldProperties = fieldPropertiesJSON;
+      console.log('Form Elements Loaded:', this.formElements);
+      console.log('Field Properties Loaded:', this.fieldProperties);
+    } catch (error) {
+      console.error('Error loading JSON data:', error);
+    }
 
     // Load default field groups
     this.fieldGroups = [
-      {
-        id: 1,
-        name: 'AMC Reports',
-        description: 'Report details',
-        elements: [],
-      },
-      {
-        id: 2,
-        name: 'HVAC Repair',
-        description: 'HVAC service details',
-        elements: [],
-      },
-      {
-        id: 3,
-        name: 'AMC Yearly',
-        description: 'Yearly maintenance',
-        elements: [],
-      },
-      {
-        id: 4,
-        name: 'AMC Installations - Tier 3',
-        description: 'Installation details',
-        elements: [],
-      },
+      { id: 1, name: 'AMC Reports', description: 'Report details', elements: [] },
+      { id: 2, name: 'HVAC Repair', description: 'HVAC service details', elements: [] },
+      { id: 3, name: 'AMC Yearly', description: 'Yearly maintenance', elements: [] },
+      { id: 4, name: 'AMC Installations - Tier 3', description: 'Installation details', elements: [] }
     ];
+
+    // Set first field group as default selected
+    this.selectedFieldGroup = this.fieldGroups.length > 0 ? this.fieldGroups[0] : null;
+
+    console.log('Field Groups Loaded:', this.fieldGroups);
   }
 
   /** ======== Field Groups Management ======== **/
-
-  getFieldGroups() {
+  async getFieldGroups(): Promise<any[]> {
+    while (this.fieldGroups.length === 0) {
+      await new Promise(resolve => setTimeout(resolve, 100)); // Wait until data is available
+    }
     return this.fieldGroups;
   }
 
@@ -85,9 +73,34 @@ export class LocalStorageService {
     this.fieldGroups.splice(currentIndex, 0, movedItem);
   }
 
-  /** ======== Form Elements Management ======== **/
+  /** ✅ Copy Field Group (Fix: Properly Duplicate Field Group & Update Left Pane) **/
+  copyFieldGroup(originalGroupId: number) {
+    const originalGroup = this.fieldGroups.find(group => group.id === originalGroupId);
+    if (originalGroup) {
+      const copiedGroup = {
+        ...originalGroup,
+        id: Date.now(), // Generate new ID
+        name: originalGroup.name + ' - Copy'
+      };
+      this.fieldGroups.push(copiedGroup);
+    }
+  }
 
-  getFormElements() {
+  /** ✅ Delete Field Group (Fix: Remove Form & Update Selection) **/
+  deleteFieldGroup(groupId: number) {
+    this.fieldGroups = this.fieldGroups.filter(group => group.id !== groupId);
+
+    // If the deleted group was selected, reset selection
+    if (this.selectedFieldGroup?.id === groupId) {
+      this.selectedFieldGroup = this.fieldGroups.length > 0 ? this.fieldGroups[0] : null;
+    }
+  }
+
+  /** ======== Form Elements Management ======== **/
+  async getFormElements(): Promise<any[]> {
+    while (this.formElements.length === 0) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
     return this.formElements;
   }
 
@@ -101,14 +114,14 @@ export class LocalStorageService {
   removeElementFromFieldGroup(fieldGroupId: number, elementId: string) {
     const group = this.fieldGroups.find((fg) => fg.id === fieldGroupId);
     if (group) {
-      group.elements = group.elements.filter((e: { id: any; }) => e.id !== elementId);
+      group.elements = group.elements.filter((e: { id: any }) => e.id !== elementId);
     }
   }
 
   updateElementInFieldGroup(fieldGroupId: number, updatedElement: any) {
     const group = this.fieldGroups.find((fg) => fg.id === fieldGroupId);
     if (group) {
-      const index = group.elements.findIndex((e: { id: any; }) => e.id === updatedElement.id);
+      const index = group.elements.findIndex((e: { id: any }) => e.id === updatedElement.id);
       if (index !== -1) {
         group.elements[index] = updatedElement;
       }
@@ -118,7 +131,7 @@ export class LocalStorageService {
   copyElementInFieldGroup(fieldGroupId: number, elementId: string) {
     const group = this.fieldGroups.find((fg) => fg.id === fieldGroupId);
     if (group) {
-      const element = group.elements.find((e: { id: string; }) => e.id === elementId);
+      const element = group.elements.find((e: { id: string }) => e.id === elementId);
       if (element) {
         const copiedElement = { ...element, id: element.id + '_copy' };
         group.elements.push(copiedElement);
@@ -127,7 +140,6 @@ export class LocalStorageService {
   }
 
   /** ======== Form JSON Import/Export ======== **/
-
   saveForm(groupId: number) {
     const group = this.fieldGroups.find((fg) => fg.id === groupId);
     return group ? JSON.stringify(group) : null;
@@ -154,8 +166,10 @@ export class LocalStorageService {
   }
 
   /** ======== Field Properties Management ======== **/
-
-  getFieldProperties() {
+  async getFieldProperties(): Promise<any[]> {
+    while (this.fieldProperties.length === 0) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
     return this.fieldProperties;
   }
 }

@@ -1,0 +1,110 @@
+<div class="p-4 bg-white rounded-md shadow-md">
+  <h2 class="text-lg font-semibold">Form Preview</h2>
+
+  <!-- ✅ Drop Area -->
+  <div id="form-renderer"
+       class="border-dashed border-2 border-gray-400 p-4 mt-4 rounded-md min-h-[200px] flex flex-col items-center justify-center"
+       (dragover)="onDragOver($event)"
+       (drop)="onDrop($event)">
+
+    <!-- ✅ Loader Animation -->
+    <div *ngIf="loading" class="loader-container">
+      <div class="loader"></div>
+      <p class="text-gray-500 mt-2">Loading Form Field...</p>
+    </div>
+
+    <!-- ✅ Render Form Elements -->
+    <div *ngFor="let element of elements" class="w-full">
+      <ng-container [ngSwitch]="element.type">
+
+        <!-- Text Field -->
+        <div *ngSwitchCase="'text'" class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">{{ element.label }}</label>
+          <input type="text" [placeholder]="element.placeholder"
+                 class="w-full mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-2">
+        </div>
+
+        <!-- Textarea -->
+        <div *ngSwitchCase="'textarea'" class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">{{ element.label }}</label>
+          <textarea [placeholder]="element.placeholder"
+                    class="w-full mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-2"></textarea>
+        </div>
+
+        <!-- Number Input -->
+        <div *ngSwitchCase="'number'" class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">{{ element.label }}</label>
+          <input type="number"
+                 class="w-full mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-2">
+        </div>
+
+        <!-- Date Picker -->
+        <div *ngSwitchCase="'date'" class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">{{ element.label }}</label>
+          <input type="date"
+                 class="w-full mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-2">
+        </div>
+
+        <!-- Time Picker -->
+        <div *ngSwitchCase="'time'" class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">{{ element.label }}</label>
+          <input type="time"
+                 class="w-full mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-2">
+        </div>
+
+        <!-- Date & Time Picker -->
+        <div *ngSwitchCase="'datetime'" class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">{{ element.label }}</label>
+          <input type="datetime-local"
+                 class="w-full mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-2">
+        </div>
+
+        <!-- Radio Button -->
+        <div *ngSwitchCase="'radio'" class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">{{ element.label }}</label>
+          <div class="mt-1">
+            <label *ngFor="let option of element.options" class="inline-flex items-center space-x-2 mr-4">
+              <input type="radio" [value]="option" name="{{ element.id }}"
+                     class="text-blue-500 focus:ring-blue-500">
+              <span>{{ option }}</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Checkbox -->
+        <div *ngSwitchCase="'checkbox'" class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">{{ element.label }}</label>
+          <div class="mt-1">
+            <label *ngFor="let option of element.options" class="inline-flex items-center space-x-2 mr-4">
+              <input type="checkbox" [value]="option"
+                     class="text-blue-500 focus:ring-blue-500">
+              <span>{{ option }}</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Dropdown -->
+        <div *ngSwitchCase="'dropdown'" class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">{{ element.label }}</label>
+          <select class="w-full mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-2">
+            <option *ngFor="let option of element.options" [value]="option">{{ option }}</option>
+          </select>
+        </div>
+
+        <!-- File Upload -->
+        <div *ngSwitchCase="'upload'" class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">{{ element.label }}</label>
+          <input type="file"
+                 class="w-full mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-2">
+        </div>
+
+        <!-- Unknown Field Type -->
+        <div *ngSwitchDefault>
+          <p class="text-red-500">Unsupported field type: {{ element.type }}</p>
+        </div>
+
+      </ng-container>
+    </div>
+
+  </div>
+</div>

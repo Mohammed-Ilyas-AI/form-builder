@@ -1,0 +1,22 @@
+{
+    "cSpell.words": [
+        "fontawesome",
+        "HVAC",
+        "linecap",
+        "linejoin"
+    ],
+    "spellright.language": [
+        "en"
+    ],
+    "spellright.documentTypes": [
+        "markdown",
+        "latex",
+        "plaintext",
+        "log"
+    ],
+    "spellright.parserByClass": {
+        "log": {
+            "parser": "plain"
+        }
+    }
+}

@@ -1,1 +1,18 @@
-<p>right-drawer works!</p>
+<div class="p-4 bg-white rounded-md shadow-md">
+  <h2 class="text-lg font-semibold mb-4">Field Properties</h2>
+
+  <div *ngFor="let category of fieldProperties">
+    <h3 class="text-md font-medium text-gray-700 mb-2">{{ category.category }}</h3>
+
+    <div *ngFor="let property of category.properties" class="mb-3">
+      <label class="font-medium flex items-center gap-2">
+        <i [class]="property.icon" class="text-lg"></i>
+        {{ property.name }}
+      </label>
+
+      <input *ngIf="property.type === 'text'" type="text" [(ngModel)]="selectedField[property.id]" class="border p-2 w-full rounded">
+      <input *ngIf="property.type === 'number'" type="number" [(ngModel)]="selectedField[property.id]" class="border p-2 w-full rounded">
+      <input *ngIf="property.type === 'checkbox'" type="checkbox" [(ngModel)]="selectedField[property.id]" class="ml-2">
+    </div>
+  </div>
+</div>

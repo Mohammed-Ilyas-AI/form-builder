@@ -1,20 +1,16 @@
-<div class="flex flex-col md:flex-row h-screen bg-gray-100 p-4">
+<div class="flex flex-wrap bg-gray-100 p-2">
   <!-- Left Pane (Field Groups) -->
-  <div class="w-full md:w-3/12 p-4">
-    <div class="bg-white shadow-lg rounded-lg p-4 h-full">
-      <app-left-pane></app-left-pane>
-    </div>
+  <div class="w-full md:w-1/4 p-4">
+    <app-left-pane></app-left-pane>
   </div>
 
   <!-- Middle Pane (Form Builder & Renderer) -->
-  <div class="w-full md:w-6/12 p-4">
+  <div class="w-full md:w-2/4 p-2">
     <app-middle-pane></app-middle-pane>
   </div>
 
   <!-- Right Pane (Form Elements) -->
-  <div class="w-full md:w-3/12 p-4">
-    <div class="bg-white shadow-lg rounded-lg p-4 h-full">
-      <app-right-pane></app-right-pane>
-    </div>
+  <div class="w-full md:w-1/4 p-4">
+    <app-right-pane></app-right-pane>
   </div>
 </div>
