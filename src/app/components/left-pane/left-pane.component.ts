@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { LocalStorageService } from '../../service/local-storage.service';
 import { CommonModule } from '@angular/common';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
+import { FieldGroup } from '../../models/field-group';
+import { FieldGroupService } from '../../services/field-group.service';
+import { StorageService } from '../../services/storage.service';
 
 @Component({
   selector: 'app-left-pane',
@@ -10,28 +12,26 @@ import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-
   styleUrl: './left-pane.component.css'
 })
 export class LeftPaneComponent implements OnInit {
-  fieldGroups: any[] = [];
+  fieldGroups: FieldGroup[] = [];
 
-  constructor(private storageService: LocalStorageService) {}
+  constructor(private fieldGroupService: FieldGroupService, private storageService: StorageService) {}
 
   ngOnInit() {
-    this.loadFieldGroups();
+    // Load field groups from the service (not from localStorage)
+    this.fieldGroupService.fieldGroups$.subscribe(groups => {
+      this.fieldGroups = groups;
+    });
   }
 
-  async loadFieldGroups() {
-    this.fieldGroups = await this.storageService.getFieldGroups();
-  }
-
-  createFieldGroup() {
-    this.storageService.createFieldGroup('New Field Group', 'Description here...');
-    this.loadFieldGroups(); // Reload field groups after creation
-  }
-
-  selectFieldGroup(group: any) {
+  selectFieldGroup(group: FieldGroup) {
     this.storageService.setSelectedFieldGroup(group);
   }
 
-  reorderGroups(event: CdkDragDrop<any[]>) {
+  createFieldGroup() {
+    this.fieldGroupService.addFieldGroup('New Field Group', 'Enter description here...');
+  }
+
+  reorderGroups(event: CdkDragDrop<FieldGroup[]>) {
     moveItemInArray(this.fieldGroups, event.previousIndex, event.currentIndex);
   }
 }

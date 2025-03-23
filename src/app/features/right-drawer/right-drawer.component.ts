@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { LocalStorageService } from '../../service/local-storage.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { StorageService } from '../../services/storage.service';
+import { FieldProperty } from '../../models/field-property';
 
 @Component({
   selector: 'app-right-drawer',
@@ -10,22 +12,28 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './right-drawer.component.css'
 })
 export class RightDrawerComponent {
+  fieldProperties: FieldProperty[] = [];
   selectedField: any = null;
-  fieldProperties: any[] = [];
 
-  constructor(private storageService: LocalStorageService) {}
+  constructor(private storageService: StorageService) {}
 
-  async ngOnInit() {
-    this.fieldProperties = await this.storageService.getFieldProperties();
+  ngOnInit() {
+    this.loadFieldProperties();
   }
 
-  setSelectedField(field: any) {
-    this.selectedField = field;
+  private async loadFieldProperties() {
+    try {
+      const response = await fetch('/assets/data/field-properties.json');
+      if (!response.ok) throw new Error('Failed to load field properties');
+      this.fieldProperties = await response.json();
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   updateFieldProperty(property: string, value: any) {
     if (this.selectedField) {
-      this.selectedField[property] = value;
+      (this.selectedField as any)[property] = value;
     }
   }
 }

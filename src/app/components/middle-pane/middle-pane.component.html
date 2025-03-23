@@ -1,40 +1,32 @@
-<div class="p-4 h-full flex flex-col middle-pane">
-  <!-- ✅ Ensure Header & Description Show Properly -->
-  <div class="sticky top-0 z-10 bg-white shadow-md p-2 rounded-md">
-    <div class="flex justify-between items-center">
-      <div class="flex items-center gap-3">
-        <input *ngIf="isEditingTitle" [(ngModel)]="selectedFieldGroup.name"
-               class="border p-2 text-xl font-bold w-full rounded">
-        <h2 *ngIf="!isEditingTitle" class="text-xl font-bold">{{ selectedFieldGroup?.name || 'No Field Group Selected' }}</h2>
+<div class="p-4 bg-white shadow rounded-lg">
+  <!-- Title & Description -->
+  <div class="mb-4">
+    <input type="text"
+           class="w-full p-2 border rounded-lg"
+           [value]="selectedFieldGroup?.name"
+           (input)="editFieldGroupName($event)"
+           placeholder="Enter form title..." />
+    <textarea class="w-full mt-2 p-2 border rounded-lg"
+              (dblclick)="editDescription($event)"
+              placeholder="Click to enter description...">
+      {{ selectedFieldGroup?.description }}
+    </textarea>
+  </div>
 
-        <button (click)="enableTitleEdit()" class="text-blue-500">
-          <i class="fas fa-edit"></i>
-        </button>
-      </div>
-
-      <div class="flex gap-3">
-        <button (click)="copyFieldGroup()" class="text-gray-500 hover:text-gray-700">
-          <i class="fas fa-copy"></i>
-        </button>
-        <button (click)="deleteFieldGroup()" class="text-red-500 hover:text-red-700">
-          <i class="fas fa-trash"></i>
-        </button>
-      </div>
-    </div>
-
-    <!-- ✅ Ensure Description is Displayed -->
-    <div class="mt-3">
-      <input *ngIf="isEditingDescription" [(ngModel)]="selectedFieldGroup.description"
-             class="border p-2 w-full rounded" placeholder="Enter form description...">
-      <p *ngIf="!isEditingDescription" (click)="enableDescriptionEdit()"
-         class="border p-2 w-full text-gray-500 cursor-pointer">
-        {{ selectedFieldGroup?.description || '[ Add description ... ]' }}
-      </p>
+  <!-- Form Elements -->
+  <div class="space-y-4">
+    <div *ngFor="let element of formElements" class="p-3 border rounded-lg flex items-center justify-between">
+      <span>{{ element.label }}</span>
+      <i class="fa fa-trash text-red-500 cursor-pointer" (click)="removeElement(element)"></i>
     </div>
   </div>
 
-  <!-- ✅ Scrollable Form Builder -->
-  <div class="flex-col h-auto overflow-y-auto scrollbar-hidden mt-4 p-2 bg-white rounded-md shadow-md">
-    <app-form-renderer></app-form-renderer>
+  <!-- Footer Actions -->
+  <div class="mt-4 flex justify-between items-center">
+    <button class="bg-blue-500 text-white px-4 py-2 rounded-lg" (click)="saveForm()">Save</button>
+    <button class="bg-green-500 text-white px-4 py-2 rounded-lg" (click)="previewForm()">Preview</button>
+    <button class="bg-gray-500 text-white px-4 py-2 rounded-lg" (click)="exportForm()">Export</button>
+    <input type="file" class="hidden" id="importFile" (change)="importForm($event)">
+    <label for="importFile" class="cursor-pointer bg-purple-500 text-white px-4 py-2 rounded-lg">Import</label>
   </div>
 </div>

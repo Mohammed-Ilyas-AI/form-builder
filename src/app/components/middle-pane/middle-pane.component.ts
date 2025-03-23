@@ -1,102 +1,92 @@
-import { Component, DoCheck, OnInit } from '@angular/core';
-import { LocalStorageService } from '../../service/local-storage.service';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { FormRendererComponent } from "../../features/form-renderer/form-renderer.component";
+import { FormGroup, FormsModule } from '@angular/forms';
+import { StorageService } from '../../services/storage.service';
+import { DragService } from '../../services/drag.service';
 
 @Component({
   selector: 'app-middle-pane',
-  imports: [CommonModule, FormsModule, FormRendererComponent],
+  imports: [CommonModule, FormsModule],
   templateUrl: './middle-pane.component.html',
   styleUrl: './middle-pane.component.css'
 })
-export class MiddlePaneComponent implements OnInit, DoCheck{
+export class MiddlePaneComponent implements OnInit{
   selectedFieldGroup: any = null;
-  isEditingTitle: boolean = false;
-  isEditingDescription: boolean = false;
+  fieldGroups: any[] = [];
+  formElements: any[] = [];
+  formGroup: FormGroup = new FormGroup({});
 
-  constructor(private storageService: LocalStorageService) {}
+  constructor(private dragService: DragService, private storageService: StorageService) {}
 
-  async ngOnInit() {
-    this.selectedFieldGroup = this.storageService.getSelectedFieldGroup();
+  ngOnInit(): void {
+    this.fieldGroups = this.storageService.loadForm();
+    this.dragService.getDraggedItem().subscribe((item) => {
+      if (item) {
+        this.addFormElement(item);
+      }
+    });
   }
 
-  ngDoCheck() {
-    const newSelectedGroup = this.storageService.getSelectedFieldGroup();
-    if (this.selectedFieldGroup !== newSelectedGroup) {
-      this.selectedFieldGroup = newSelectedGroup;
-    }
+  selectFieldGroup(group: any): void {
+    this.selectedFieldGroup = group;
+    this.formElements = group.elements || [];
   }
 
-  /** ✅ Enable Editing Title */
-  enableTitleEdit() {
-    this.isEditingTitle = true;
+  editFieldGroupName(event: any): void {
+    this.selectedFieldGroup.name = event.target.value;
+    this.updateStorage();
   }
 
-  /** ✅ Enable Editing Description */
-  enableDescriptionEdit() {
-    this.isEditingDescription = true;
+  editDescription(event: any): void {
+    this.selectedFieldGroup.description = event.target.value;
+    this.updateStorage();
   }
 
-  /** ✅ Save Edited Title and Description */
-  saveEdits() {
-    this.isEditingTitle = false;
-    this.isEditingDescription = false;
+  addFormElement(element: any): void {
+    this.formElements.push(element);
+    this.selectedFieldGroup.elements = this.formElements;
+    this.updateStorage();
   }
 
-  /** ✅ Copy the Field Group */
-  copyFieldGroup() {
-    if (!this.selectedFieldGroup) return;
-    const copiedGroup = { ...this.selectedFieldGroup, id: Date.now(), name: this.selectedFieldGroup.name + ' - Copy' };
-    this.storageService.createFieldGroup(copiedGroup.name, copiedGroup.description);
+  removeElement(element: any): void {
+    this.formElements = this.formElements.filter((el) => el !== element);
+    this.selectedFieldGroup.elements = this.formElements;
+    this.updateStorage();
   }
 
-  /** ✅ Delete the Field Group */
-  deleteFieldGroup() {
-    if (!this.selectedFieldGroup) return;
-    this.storageService.deleteFieldGroup(this.selectedFieldGroup.id);
-    this.selectedFieldGroup = null;
+  saveForm(): void {
+    this.storageService.saveForm(this.fieldGroups);
   }
 
-  onDrop(event: DragEvent) {
-    event.preventDefault();
-    const fieldData = JSON.parse(event.dataTransfer?.getData('text/plain') || '{}');
-
-    if (this.selectedFieldGroup) {
-      this.storageService.addElementToFieldGroup(this.selectedFieldGroup.id, fieldData);
-    }
+  previewForm(): void {
+    console.log('Preview Form:', this.selectedFieldGroup);
   }
 
-  allowDrop(event: DragEvent) {
-    event.preventDefault();
+  exportForm(): void {
+    const dataStr = JSON.stringify(this.selectedFieldGroup);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${this.selectedFieldGroup.name}.json`;
+    a.click();
+    window.URL.revokeObjectURL(url);
   }
 
-  deleteElement(index: number) {
-    if (this.selectedFieldGroup) {
-      this.selectedFieldGroup.elements.splice(index, 1);
-    }
-  }
-
-  copyElement(element: any) {
-    if (this.selectedFieldGroup) {
-      this.storageService.copyElementInFieldGroup(this.selectedFieldGroup.id, element.id);
-    }
-  }
-
-  saveForm() {
-    if (this.selectedFieldGroup) {
-      this.storageService.exportForm(this.selectedFieldGroup.id);
-    }
-  }
-
-  importForm(event: any) {
+  importForm(event: any): void {
     const file = event.target.files[0];
-    const reader = new FileReader();
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.selectedFieldGroup = JSON.parse(e.target?.result as string);
+        this.formElements = this.selectedFieldGroup.elements;
+        this.updateStorage();
+      };
+      reader.readAsText(file);
+    }
+  }
 
-    reader.onload = () => {
-      this.storageService.importForm(reader.result as string);
-    };
-
-    reader.readAsText(file);
+  private updateStorage(): void {
+    this.storageService.saveForm(this.fieldGroups);
   }
 }
