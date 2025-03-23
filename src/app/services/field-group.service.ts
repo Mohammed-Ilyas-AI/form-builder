@@ -16,12 +16,17 @@ export class FieldGroupService {
 
   constructor() {}
 
-  getFieldGroups(): FieldGroup[] {
-    return this.fieldGroupsSubject.value;
+  addFieldGroup(name: string, description: string, type: 'default' | 'created' | 'copied') {
+    const updatedGroups = [...this.fieldGroupsSubject.value, { id: Date.now(), name, description, elements: [], type }];
+    this.fieldGroupsSubject.next(updatedGroups);
   }
 
-  addFieldGroup(name: string, description: string) {
-    const updatedGroups = [...this.fieldGroupsSubject.value, { id: Date.now(), name, description, elements: [] }];
+  copyFieldGroup(group: FieldGroup) {
+    this.addFieldGroup(group.name + ' (Copy)', group.description, 'copied');
+  }
+
+  deleteFieldGroup(id: number) {
+    const updatedGroups = this.fieldGroupsSubject.value.filter(g => g.id !== id);
     this.fieldGroupsSubject.next(updatedGroups);
   }
 }

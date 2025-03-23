@@ -36,4 +36,10 @@ export class FormElementService {
     this.formElementsSubject.next(updatedElements);
     localStorage.setItem('formElements', JSON.stringify(updatedElements));
   }
+
+  searchFormElements(query: string): FormElement[] {
+    return this.formElementsSubject.value.filter(element =>
+      element.label.toLowerCase().includes(query.toLowerCase())
+    );
+  }
 }

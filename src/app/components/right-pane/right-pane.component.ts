@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { LocalStorageService } from '../../service/local-storage.service';
 import { CommonModule } from '@angular/common';
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import { FormElementService } from '../../services/form-element.service';
 interface FormElement {
   id: string;
   type: string;
@@ -18,13 +19,20 @@ interface FormElement {
   styleUrl: './right-pane.component.css',
 })
 export class RightPaneComponent {
-  formElements: any[] = [];
+  formElements: FormElement[] = [];
+  categories: string[] = [];
 
-  constructor(private storageService: LocalStorageService) {}
+  constructor(private formElementService: FormElementService) {}
 
-  async ngOnInit() {
-    this.formElements = await this.storageService.getFormElements();
-    console.log('✅ RightPane: Loaded available form elements:', this.formElements);
+  ngOnInit() {
+    this.formElementService.formElements$.subscribe(elements => {
+      this.formElements = elements;
+      this.categories = [...new Set(elements.map(e => e.category))];
+    });
+  }
+
+  searchElements(query: string) {
+    this.formElements = this.formElementService.searchFormElements(query);
   }
 
   /** ✅ Handle Drag Start */

@@ -4,11 +4,25 @@
     <button class="text-blue-500 font-medium" (click)="createFieldGroup()">➕ Create</button>
   </div>
 
-  <div class="flex-1 overflow-y-auto scrollbar-hidden mt-2 scrollable-list">
+  <div class="flex-1 overflow-y-auto scrollbar-hidden mt-2">
+    <h4 class="font-semibold">Default Groups</h4>
+    <ul>
+      <li *ngFor="let group of defaultGroups" (click)="selectFieldGroup(group)" class="p-2 border rounded-md mb-2 cursor-pointer">
+        {{ group.name }}
+      </li>
+    </ul>
+
+    <h4 class="font-semibold mt-3">Created Groups</h4>
     <ul cdkDropList (cdkDropListDropped)="reorderGroups($event)">
-      <li *ngFor="let group of fieldGroups" cdkDrag (click)="selectFieldGroup(group)"
-          class="flex items-center gap-4 p-2 cursor-pointer bg-white border border-gray-300 rounded-md mb-2 hover:bg-gray-100">
-        <span class="text-gray-400">☰</span> {{ group.name }}
+      <li *ngFor="let group of createdGroups" cdkDrag (click)="selectFieldGroup(group)" class="p-2 border rounded-md mb-2 cursor-pointer">
+        {{ group.name }}
+      </li>
+    </ul>
+
+    <h4 class="font-semibold mt-3">Copied Groups</h4>
+    <ul>
+      <li *ngFor="let group of copiedGroups" (click)="selectFieldGroup(group)" class="p-2 border rounded-md mb-2 cursor-pointer">
+        {{ group.name }}
       </li>
     </ul>
   </div>
