@@ -1,13 +1,5 @@
-/* @media (max-width: 768px) {
-
-  .scrollable-list {
-    max-height: 250px;
-    overflow-y: auto;
-    scrollbar-width: none;
-  }
-
-  .scrollable-list::-webkit-scrollbar {
-    display: none;
-  }
-
-} */
+.selected {
+  border: 2px solid #87CEEB; /* Mild Sky Blue */
+  color: #1E90FF;
+  font-weight: bold;
+}
