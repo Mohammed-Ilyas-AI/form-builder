@@ -1,25 +1,12 @@
 /* You can add global styles to this file, and also import other style files */
 @import "tailwindcss";
 
-.scrollbar-hidden::-webkit-scrollbar {
-  display: none;
+/* Hide scrollbar globally */
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
 }
 
-.scrollbar-hidden {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+*::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
 }
-
-@media (max-width: 992px) {
-  .layout-container {
-    flex-direction: column;
-  }
-
-  .pane {
-    width: 100%;
-    height: auto;
-  }
-}
-
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
