@@ -1,92 +1,99 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormGroup, FormsModule } from '@angular/forms';
+import {
+  FormArray,
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { StorageService } from '../../services/storage.service';
-import { DragService } from '../../services/drag.service';
+import { FieldGroup } from '../../models/field-group';
 
 @Component({
   selector: 'app-middle-pane',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './middle-pane.component.html',
-  styleUrl: './middle-pane.component.css'
+  styleUrl: './middle-pane.component.css',
 })
-export class MiddlePaneComponent implements OnInit{
-  selectedFieldGroup: any = null;
-  fieldGroups: any[] = [];
-  formElements: any[] = [];
-  formGroup: FormGroup = new FormGroup({});
+export class MiddlePaneComponent implements OnInit {
+  form!: FormGroup;
+  isEditMode: boolean = false;
+  selectedGroup: FieldGroup | null = null;
 
-  constructor(private dragService: DragService, private storageService: StorageService) {}
+  constructor(
+    private fb: FormBuilder,
+    private storageService: StorageService
+  ) {}
 
   ngOnInit(): void {
-    this.fieldGroups = this.storageService.loadForm();
-    this.dragService.getDraggedItem().subscribe((item) => {
-      if (item) {
-        this.addFormElement(item);
+    this.initializeForm();
+
+    this.storageService.selectedFieldGroup$.subscribe((group) => {
+      this.selectedGroup = group;
+      if (group) {
+        this.setFieldGroupData(group);
+      } else {
+        this.fieldGroups.clear();
       }
     });
   }
 
-  selectFieldGroup(group: any): void {
-    this.selectedFieldGroup = group;
-    this.formElements = group.elements || [];
+  initializeForm() {
+    this.form = this.fb.group({
+      fieldGroups: this.fb.array([]),
+    });
   }
 
-  editFieldGroupName(event: any): void {
-    this.selectedFieldGroup.name = event.target.value;
-    this.updateStorage();
+  get fieldGroups(): FormArray {
+    return this.form.get('fieldGroups') as FormArray;
   }
 
-  editDescription(event: any): void {
-    this.selectedFieldGroup.description = event.target.value;
-    this.updateStorage();
+  setFieldGroupData(groupData: FieldGroup) {
+    this.fieldGroups.clear();
+    const fg = this.fb.group({
+      title: [groupData.name || ''],
+      description: [groupData.description || ''],
+    });
+    this.fieldGroups.push(fg);
   }
 
-  addFormElement(element: any): void {
-    this.formElements.push(element);
-    this.selectedFieldGroup.elements = this.formElements;
-    this.updateStorage();
+  enterEditMode() {
+    this.isEditMode = true;
   }
 
-  removeElement(element: any): void {
-    this.formElements = this.formElements.filter((el) => el !== element);
-    this.selectedFieldGroup.elements = this.formElements;
-    this.updateStorage();
+  saveChanges() {
+    if (!this.selectedGroup) return;
+
+    const headerData = this.fieldGroups.at(0).value;
+    const updatedGroup: FieldGroup = {
+      ...this.selectedGroup,
+      name: headerData.title,
+      description: headerData.description,
+    };
+    this.storageService.updateSelectedFieldGroup(updatedGroup);
+    this.isEditMode = false;
   }
 
-  saveForm(): void {
-    this.storageService.saveForm(this.fieldGroups);
-  }
-
-  previewForm(): void {
-    console.log('Preview Form:', this.selectedFieldGroup);
-  }
-
-  exportForm(): void {
-    const dataStr = JSON.stringify(this.selectedFieldGroup);
-    const blob = new Blob([dataStr], { type: 'application/json' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${this.selectedFieldGroup.name}.json`;
-    a.click();
-    window.URL.revokeObjectURL(url);
-  }
-
-  importForm(event: any): void {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        this.selectedFieldGroup = JSON.parse(e.target?.result as string);
-        this.formElements = this.selectedFieldGroup.elements;
-        this.updateStorage();
-      };
-      reader.readAsText(file);
+  cancelEdit() {
+    if (this.selectedGroup) {
+      this.setFieldGroupData(this.selectedGroup);
     }
+    this.isEditMode = false;
   }
 
-  private updateStorage(): void {
-    this.storageService.saveForm(this.fieldGroups);
+  copyGroup() {
+    this.storageService.copySelectedFieldGroup();
+  }
+
+  deleteGroup() {
+    const confirmDelete = confirm(
+      'Are you sure you want to delete this group?'
+    );
+    if (confirmDelete) {
+      this.storageService.deleteSelectedFieldGroup();
+      this.selectedGroup = null;
+      this.form.reset();
+    }
   }
 }

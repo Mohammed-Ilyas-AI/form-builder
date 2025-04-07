@@ -1,32 +1,66 @@
-<div class="p-4 bg-white shadow rounded-lg">
-  <!-- Title & Description -->
-  <div class="mb-4">
-    <input type="text"
-           class="w-full p-2 border rounded-lg"
-           [value]="selectedFieldGroup?.name"
-           (input)="editFieldGroupName($event)"
-           placeholder="Enter form title..." />
-    <textarea class="w-full mt-2 p-2 border rounded-lg"
-              (dblclick)="editDescription($event)"
-              placeholder="Click to enter description...">
-      {{ selectedFieldGroup?.description }}
-    </textarea>
-  </div>
+<div class="p-4">
+  <form [formGroup]="form">
+    <div *ngIf="selectedGroup" class="bg-white shadow rounded-lg p-4 flex flex-col space-y-2">
+      <div class="flex justify-between items-start flex-wrap gap-4" formArrayName="fieldGroups">
+        <!-- Field Group Form -->
+        <div class="flex flex-col gap-2 max-w-md w-full" [formGroupName]="0">
+          <!-- Title -->
+          <ng-container *ngIf="!isEditMode; else editTitle">
+            <span class="font-semibold text-gray-900 text-lg">
+              {{ fieldGroups.at(0).get('title')?.value }}
+            </span>
+          </ng-container>
+          <ng-template #editTitle>
+            <input
+              type="text"
+              formControlName="title"
+              class="border border-gray-300 px-3 py-2 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 max-w-sm w-full"
+              placeholder="Enter title" />
+          </ng-template>
 
-  <!-- Form Elements -->
-  <div class="space-y-4">
-    <div *ngFor="let element of formElements" class="p-3 border rounded-lg flex items-center justify-between">
-      <span>{{ element.label }}</span>
-      <i class="fa fa-trash text-red-500 cursor-pointer" (click)="removeElement(element)"></i>
+          <!-- Description -->
+          <ng-container *ngIf="!isEditMode; else editDesc">
+            <span class="text-sm text-gray-500">
+              {{ fieldGroups.at(0).get('description')?.value || 'Add description ...' }}
+            </span>
+          </ng-container>
+          <ng-template #editDesc>
+            <textarea
+              formControlName="description"
+              rows="2"
+              class="border border-gray-300 px-3 py-2 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 max-w-sm w-full resize-none"
+              placeholder="Add description ..."></textarea>
+          </ng-template>
+        </div>
+
+        <!-- Action Icons -->
+        <div class="flex items-start gap-3 mt-1">
+          <button *ngIf="!isEditMode" type="button" (click)="enterEditMode()" title="Edit"
+                  class="text-blue-600 hover:text-blue-800">
+            <i class="fas fa-pencil-alt"></i>
+          </button>
+          <button *ngIf="isEditMode" type="button" (click)="saveChanges()" title="Save"
+                  class="text-green-600 hover:text-green-800 text-sm">
+            <i class="fas fa-check"></i>
+          </button>
+          <button *ngIf="isEditMode" type="button" (click)="cancelEdit()" title="Cancel"
+                  class="text-yellow-500 hover:text-yellow-700 text-sm">
+            <i class="fas fa-times"></i>
+          </button>
+          <button type="button" (click)="copyGroup()" title="Copy"
+                  class="text-indigo-500 hover:text-indigo-700 text-sm">
+            <i class="fas fa-copy"></i>
+          </button>
+          <button type="button" (click)="deleteGroup()" title="Delete"
+                  class="text-red-500 hover:text-red-700 text-sm">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+        </div>
+      </div>
     </div>
-  </div>
+  </form>
 
-  <!-- Footer Actions -->
-  <div class="mt-4 flex justify-between items-center">
-    <button class="bg-blue-500 text-white px-4 py-2 rounded-lg" (click)="saveForm()">Save</button>
-    <button class="bg-green-500 text-white px-4 py-2 rounded-lg" (click)="previewForm()">Preview</button>
-    <button class="bg-gray-500 text-white px-4 py-2 rounded-lg" (click)="exportForm()">Export</button>
-    <input type="file" class="hidden" id="importFile" (change)="importForm($event)">
-    <label for="importFile" class="cursor-pointer bg-purple-500 text-white px-4 py-2 rounded-lg">Import</label>
+  <div *ngIf="!selectedGroup" class="text-gray-400 text-sm italic mt-4">
+    Select a field group from the left pane to view its details.
   </div>
 </div>

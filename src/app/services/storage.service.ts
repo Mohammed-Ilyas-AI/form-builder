@@ -1,35 +1,51 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { FieldGroup } from '../models/field-group';
+import { FieldGroupService } from './field-group.service';
 
 @Injectable({ providedIn: 'root' })
 export class StorageService {
-  private selectedFieldGroupSubject = new BehaviorSubject<FieldGroup | null>(JSON.parse(localStorage.getItem('selectedFieldGroup') || 'null'));
-  private readonly STORAGE_KEY = 'savedForms';
+  private selectedFieldGroupSubject = new BehaviorSubject<FieldGroup | null>(null);
   selectedFieldGroup$ = this.selectedFieldGroupSubject.asObservable();
 
-  setSelectedFieldGroup(group: FieldGroup) {
+  constructor(private fieldGroupService: FieldGroupService) {
+    const initialGroups = this.fieldGroupService.getFieldGroups();
+    if (initialGroups.length > 0) {
+      this.setSelectedFieldGroup(initialGroups[0]);
+    }
+  }
+
+  setSelectedFieldGroup(group: FieldGroup | null) {
     this.selectedFieldGroupSubject.next(group);
-    localStorage.setItem('selectedFieldGroup', JSON.stringify(group));
   }
 
-  clearSelectedFieldGroup() {
-    this.selectedFieldGroupSubject.next(null);
-    localStorage.removeItem('selectedFieldGroup');
+  updateSelectedFieldGroup(updatedGroup: FieldGroup) {
+    this.fieldGroupService.updateFieldGroup(updatedGroup);
+    this.setSelectedFieldGroup(updatedGroup);
   }
 
-  saveForm(fieldGroups: any[]): void {
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(fieldGroups));
+  copySelectedFieldGroup() {
+    const original = this.selectedFieldGroupSubject.value;
+    if (!original) return;
+
+    const copied: FieldGroup = {
+      ...original,
+      id: Date.now(), // Unique ID
+      name: `${original.name} (Copy)`,
+      type: 'copied'
+    };
+    this.fieldGroupService.addFieldGroup(copied.name, copied.description || '', copied.type);
+    this.setSelectedFieldGroup(copied);
   }
 
-  loadForm(): any[] {
-    const data = localStorage.getItem(this.STORAGE_KEY);
-    return data ? JSON.parse(data) : [];
-  }
+  deleteSelectedFieldGroup() {
+    const groupToDelete = this.selectedFieldGroupSubject.value;
+    if (!groupToDelete) return;
 
-  removeFieldGroup(groupId: string): void {
-    let fieldGroups = this.loadForm();
-    fieldGroups = fieldGroups.filter((group) => group.id !== groupId);
-    this.saveForm(fieldGroups);
+    const updatedGroups = this.fieldGroupService.getFieldGroups().filter(g => g.id !== groupToDelete.id);
+    this.fieldGroupService['fieldGroupsSubject'].next(updatedGroups); // Direct update
+
+    // Select the first group again or null
+    this.setSelectedFieldGroup(updatedGroups[0] || null);
   }
 }
