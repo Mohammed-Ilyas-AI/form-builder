@@ -1,45 +1,47 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { FormElement } from '../models/form-element';
+import { FormElement } from '../models/form-element'; // ✅ Use your model file
+
+export interface FormCategory {
+  category: string;
+  fields: FormElement[];
+}
 
 @Injectable({ providedIn: 'root' })
 export class FormElementService {
-  private formElementsSubject = new BehaviorSubject<FormElement[]>(JSON.parse(localStorage.getItem('formElements') || '[]'));
-  formElements$ = this.formElementsSubject.asObservable();
+  private categoriesSubject = new BehaviorSubject<FormCategory[]>([]);
+  categories$ = this.categoriesSubject.asObservable();
 
   constructor() {
-    this.loadDefaults();
+    this.loadFromJson();
   }
 
-  private async loadDefaults() {
-    if (!this.formElementsSubject.value.length) {
-      try {
-        const response = await fetch('/assets/data/form-elements.json');
-        if (!response.ok) throw new Error('Failed to load form elements');
-        const data = await response.json();
-        this.formElementsSubject.next(data);
-        localStorage.setItem('formElements', JSON.stringify(data));
-      } catch (error) {
-        console.error(error);
-      }
+  /** Load from /assets/data/form-elements.json */
+  private async loadFromJson() {
+    try {
+      const res = await fetch('assets/data/form-elements.json');
+      if (!res.ok) throw new Error('Failed to load form-elements.json');
+
+      const data: FormCategory[] = await res.json();
+      this.categoriesSubject.next(data);
+    } catch (error) {
+      console.error('Error loading form elements:', error);
     }
   }
 
-  addElementToFieldGroup(fieldGroupId: number, element: FormElement) {
-    const elements = [...this.formElementsSubject.value, element];
-    this.formElementsSubject.next(elements);
-    localStorage.setItem('formElements', JSON.stringify(elements));
-  }
+  /** Filter categories by search query */
+  filterCategories(query: string): FormCategory[] {
+    const currentData = this.categoriesSubject.value;
+    if (!query.trim()) return currentData;
 
-  deleteElementFromFieldGroup(elementId: string) {
-    const updatedElements = this.formElementsSubject.value.filter(e => e.id !== elementId);
-    this.formElementsSubject.next(updatedElements);
-    localStorage.setItem('formElements', JSON.stringify(updatedElements));
-  }
-
-  searchFormElements(query: string): FormElement[] {
-    return this.formElementsSubject.value.filter(element =>
-      element.label.toLowerCase().includes(query.toLowerCase())
-    );
+    const lowerQuery = query.toLowerCase();
+    return currentData
+      .map(category => ({
+        category: category.category,
+        fields: category.fields.filter(el =>
+          el.label.toLowerCase().includes(lowerQuery)
+        )
+      }))
+      .filter(cat => cat.fields.length > 0);
   }
 }
