@@ -3,13 +3,7 @@ import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
 import { DragDropModule } from '@angular/cdk/drag-drop';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatRadioModule } from '@angular/material/radio';
-import { MatCheckboxModule } from '@angular/material/checkbox';
+import { HttpClient } from '@angular/common/http';
 
 
 export const appConfig: ApplicationConfig = {
@@ -18,13 +12,8 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     importProvidersFrom(
       DragDropModule,
-      MatFormFieldModule,
-      MatInputModule,
-      MatSelectModule,
-      MatDatepickerModule,
-      MatNativeDateModule,
-      MatRadioModule,
-      MatCheckboxModule),
+      HttpClient
+    ),
 
   ],
 };

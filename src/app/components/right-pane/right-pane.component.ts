@@ -1,43 +1,33 @@
-import { Component } from '@angular/core';
-import { LocalStorageService } from '../../service/local-storage.service';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DragDropModule } from '@angular/cdk/drag-drop';
-import { FormElementService } from '../../services/form-element.service';
-interface FormElement {
-  id: string;
-  type: string;
-  label: string;
-  placeholder?: string;
-  icon?: string;
-  options?: string[];
-}
+import { FormCategory, FormElementService } from '../../services/form-element.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-right-pane',
-  imports: [CommonModule, DragDropModule],
+  imports: [CommonModule, DragDropModule, FormsModule],
   templateUrl: './right-pane.component.html',
   styleUrl: './right-pane.component.css',
 })
-export class RightPaneComponent {
-  formElements: FormElement[] = [];
-  categories: string[] = [];
+export class RightPaneComponent implements OnInit {
+  searchQuery: string = '';
+  categories: FormCategory[] = [];
 
   constructor(private formElementService: FormElementService) {}
 
-  ngOnInit() {
-    this.formElementService.formElements$.subscribe(elements => {
-      this.formElements = elements;
-      this.categories = [...new Set(elements.map(e => e.category))];
+  ngOnInit(): void {
+    this.formElementService.categories$.subscribe(data => {
+      this.categories = data;
     });
   }
 
-  searchElements(query: string) {
-    this.formElements = this.formElementService.searchFormElements(query);
+  get filteredCategories(): FormCategory[] {
+    return this.formElementService.filterCategories(this.searchQuery);
   }
 
-  /** ✅ Handle Drag Start */
-  onDragStart(event: DragEvent, field: FormElement): void {
-    console.log('🔥 RightPane: Dragging started:', field);
-    event.dataTransfer?.setData('text/plain', JSON.stringify(field)); // Store dragged field data
+  // Optional: Drag start event if you want to use DragDrop API
+  onDragStart(event: DragEvent, element: any) {
+    event.dataTransfer?.setData('formElement', JSON.stringify(element));
   }
 }
